@@ -76,17 +76,12 @@ class Component(KBCEnvHandler):
             tokens = {}
 
             for row in reader:
-                try:
-                    print(f"Generating token for user {row['email']}, project {row['project_id']}")
-                    t = self.get_project_storage_token(params[KEY_API_TOKEN], row['project_id'], tokens)
+                logging.info(f"Generating token for user {row['email']}, project {row['project_id']}")
+                t = self.get_project_storage_token(params[KEY_API_TOKEN], row['project_id'], tokens)
 
-                    # #### LINK BUCKETS
+                # #### LINK BUCKETS
 
-                    self.link_buckets(t['token'], src_project_id, row['project_id'], buckets, writer)
-                except Exception as e:
-                    logging.error(f'Linking failed {e}')
-                    logging.exception(e)
-                    continue
+                self.link_buckets(t['token'], src_project_id, row['project_id'], buckets, writer)
 
         self.configuration.write_table_manifest(out_file_path, primary_key=["project_id", "src_bucket_id"],
                                                 incremental=True)
@@ -94,10 +89,17 @@ class Component(KBCEnvHandler):
 
     def link_buckets(self, token, src_prj_id, project_id, buckets, log_writer, region='EU'):
         for b in buckets:
-            lb = self.link_bucket(token, region, src_prj_id, b['id'], b['link_name'])
-            log_writer.writerow({"dst_bucket_id": lb['id'],
-                                 "project_id": project_id,
-                                 "src_bucket_id": b['id']})
+            try:
+                lb = self.link_bucket(token, region, src_prj_id, b['id'], b['link_name'])
+                log_writer.writerow({"dst_bucket_id": lb['id'],
+                                     "project_id": project_id,
+                                     "src_bucket_id": b['id']})
+            except requests.HTTPError as e:
+                logging.warning(
+                    f'Linking to project {project_id} failed {json.loads(e.response.text)["error"]}')
+                continue
+            except Exception as e:
+                logging.exception(e)
 
     def link_bucket(self, token, region, src_project_id, src_bucket_id, dst_name):
         """
@@ -154,7 +156,7 @@ class Component(KBCEnvHandler):
     def get_project_storage_token(self, manage_token, project_id, storage_tokens, region='EU'):
         project_pk = f'{region}-{project_id}'
         if not storage_tokens.get(project_pk):
-            print(f'Generating token for project {region}-{project_id}')
+            logging.info(f'Generating token for project {region}-{project_id}')
             storage_tokens[project_pk] = self.generate_token('Sample Config provisioning', manage_token,
                                                              project_id, region, manage_tokens=True)
         return storage_tokens[project_pk]
