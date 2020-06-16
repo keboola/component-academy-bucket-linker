@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "title": "configuration",
+  "required": [
+    "#api_token",
+    "#src_token",
+    "aws_region",
+    "dst_aws_region"
+  ],
+  "properties": {
+    "#api_token": {
+      "type": "string",
+      "title": "Manage token",
+      "format": "password",
+      "propertyOrder": 200
+    },
+    "#src_token": {
+      "type": "string",
+      "title": "Source project token",
+      "format": "password",
+      "propertyOrder": 300
+    },
+    "aws_region": {
+      "type": "string",
+      "title": "Source Region",
+      "propertyOrder": 500,
+      "default": "US"
+    },
+    "dst_aws_region": {
+      "type": "string",
+      "title": "Destination Region",
+      "propertyOrder": 600,
+      "default": "US"
+    }
+  }
+}

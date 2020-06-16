@@ -1,0 +1,5 @@
+https://bitbucket.org/kds_consulting_team/keboola-python-util-lib/get/0.2.9.zip#egg=kbc
+git+https://github.com/keboola/sapi-python-client.git#egg=kbcstorage
+mock
+requests
+freezegun
