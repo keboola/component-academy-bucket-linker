@@ -59,8 +59,6 @@ class Component(KBCEnvHandler):
         out_file_path = os.path.join(self.tables_out_path, 'user_projects_shared_buckets.csv')
         user_projects_buckets_path = os.path.join(self.tables_in_path, 'user_projects_buckets.csv')
 
-        buckets = []
-
         with open(user_projects_buckets_path, mode='rt', encoding='utf-8') as in_file, open(
                 out_file_path, mode='w+',
                 encoding='utf-8') as out_file:
@@ -76,7 +74,7 @@ class Component(KBCEnvHandler):
 
                 # #### LINK BUCKETS
 
-                self.link_buckets(t['token'], src_project_id, row['project_id'], row['bucket_id'], writer)
+                self.link_buckets(t['token'], src_project_id, row['project_id'], [row['bucket_id']], writer)
 
         self.configuration.write_table_manifest(out_file_path, primary_key=["project_id", "src_bucket_id"],
                                                 incremental=True)
