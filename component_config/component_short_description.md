@@ -1,1 +1,2 @@
-Generate projects in organization and invite users.
+Links buckets to projects.
+

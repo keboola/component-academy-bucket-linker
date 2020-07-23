@@ -56,17 +56,12 @@ class Component(KBCEnvHandler):
         '''
         params = self.cfg_params  # noqa
         src_project_id = os.getenv('KBC_PROJECTID')
-        buckets_path = os.path.join(self.tables_in_path, 'buckets.csv')
         out_file_path = os.path.join(self.tables_out_path, 'user_projects_shared_buckets.csv')
-        user_projects_path = os.path.join(self.tables_in_path, 'user_projects.csv')
+        user_projects_buckets_path = os.path.join(self.tables_in_path, 'user_projects_buckets.csv')
 
         buckets = []
-        with open(buckets_path, mode='rt', encoding='utf-8') as in_file:
-            reader = csv.DictReader(in_file, lineterminator='\n')
-            for b in reader:
-                buckets.append({"id": b['bucket_id'], "link_name": b['bucket_id'].split('in.c-')[1]})
 
-        with open(user_projects_path, mode='rt', encoding='utf-8') as in_file, open(
+        with open(user_projects_buckets_path, mode='rt', encoding='utf-8') as in_file, open(
                 out_file_path, mode='w+',
                 encoding='utf-8') as out_file:
             reader = csv.DictReader(in_file, lineterminator='\n')
@@ -81,7 +76,7 @@ class Component(KBCEnvHandler):
 
                 # #### LINK BUCKETS
 
-                self.link_buckets(t['token'], src_project_id, row['project_id'], buckets, writer)
+                self.link_buckets(t['token'], src_project_id, row['project_id'], row['bucket_id'], writer)
 
         self.configuration.write_table_manifest(out_file_path, primary_key=["project_id", "src_bucket_id"],
                                                 incremental=True)
