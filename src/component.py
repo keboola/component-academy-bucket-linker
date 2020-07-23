@@ -74,7 +74,7 @@ class Component(KBCEnvHandler):
 
                 # #### LINK BUCKETS
 
-                self.link_buckets(t['token'], src_project_id, row['project_id'], [row['bucket_id']], writer)
+                self.link_buckets(t['token'], src_project_id, row['project_id'], [row], writer)
 
         self.configuration.write_table_manifest(out_file_path, primary_key=["project_id", "src_bucket_id"],
                                                 incremental=True)
@@ -83,10 +83,10 @@ class Component(KBCEnvHandler):
     def link_buckets(self, token, src_prj_id, project_id, buckets, log_writer, region='EU'):
         for b in buckets:
             try:
-                lb = self.link_bucket(token, region, src_prj_id, b['id'], b['link_name'])
+                lb = self.link_bucket(token, region, src_prj_id, b['bucket_id'], b['bucket_id'].split('in.c-')[1])
                 log_writer.writerow({"dst_bucket_id": lb['id'],
                                      "project_id": project_id,
-                                     "src_bucket_id": b['id']})
+                                     "src_bucket_id": b['bucket_id']})
             except requests.HTTPError as e:
                 logging.warning(
                     f'Linking to project {project_id} failed {json.loads(e.response.text)["error"]}')
