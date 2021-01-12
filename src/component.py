@@ -29,7 +29,8 @@ MANDATORY_IMAGE_PARS = []
 APP_VERSION = '0.0.1'
 
 URL_SUFFIXES = {"US": ".keboola.com",
-                "EU": ".eu-central-1.keboola.com"}
+                "EU": ".eu-central-1.keboola.com",
+                "AZURE-EU": ".north-europe.azure.keboola.com"}
 
 
 class Component(KBCEnvHandler):
@@ -70,11 +71,13 @@ class Component(KBCEnvHandler):
 
             for row in reader:
                 logging.info(f"Generating token for user {row['email']}, project {row['project_id']}")
-                t = self.get_project_storage_token(params[KEY_API_TOKEN], row['project_id'], tokens)
+                t = self.get_project_storage_token(params[KEY_API_TOKEN], row['project_id'], tokens,
+                                                   region=params[KEY_DST_REGION])
 
                 # #### LINK BUCKETS
 
-                self.link_buckets(t['token'], src_project_id, row['project_id'], [row], writer)
+                self.link_buckets(t['token'], src_project_id, row['project_id'], [row], writer,
+                                  region=params[KEY_DST_REGION])
 
         self.configuration.write_table_manifest(out_file_path, primary_key=["project_id", "src_bucket_id"],
                                                 incremental=True)
