@@ -28,10 +28,6 @@ MANDATORY_IMAGE_PARS = []
 
 APP_VERSION = '0.0.1'
 
-URL_SUFFIXES = {"US": ".keboola.com",
-                "EU": ".eu-central-1.keboola.com",
-                "AZURE-EU": ".north-europe.azure.keboola.com"}
-
 
 class Component(KBCEnvHandler):
 
@@ -50,6 +46,12 @@ class Component(KBCEnvHandler):
         except ValueError as e:
             logging.exception(e)
             exit(1)
+            # default
+        self.url_suffixes = {"US": ".keboola.com",
+                             "EU": ".eu-central-1.keboola.com",
+                             "AZURE-EU": ".north-europe.azure.keboola.com"}
+
+        self.url_suffixes = {**self.url_suffixes, **self.image_params}
 
     def run(self):
         '''
@@ -110,7 +112,7 @@ class Component(KBCEnvHandler):
         Raises:
             requests.HTTPError: If the API request fails.
         """
-        cl = Endpoint('https://connection' + URL_SUFFIXES[region], 'buckets', token)
+        cl = Endpoint('https://connection' + self.url_suffixes[region], 'buckets', token)
         url = cl.base_url
         parameters = {}
         parameters['name'] = dst_name
@@ -139,7 +141,7 @@ class Component(KBCEnvHandler):
         }
 
         response = requests.post(
-            f'https://connection{URL_SUFFIXES[region]}/manage/projects/' + str(proj_id) + '/tokens',
+            f'https://connection{self.url_suffixes[region]}/manage/projects/' + str(proj_id) + '/tokens',
             headers=headers,
             data=json.dumps(data))
         try:
